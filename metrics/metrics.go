@@ -1,7 +1,6 @@
 package metrics
 
 import (
-	"log/slog"
 	"maps"
 	"slices"
 	"sync"
@@ -41,7 +40,6 @@ func (r *collector) IncrementCounter(metricName string, opts ...CounterOpts) {
 		)
 		countersCache.Store(metricName, counterVec)
 		if err := prometheus.Register(counterVec); err != nil {
-			slog.Warn("Failed to register counter %s: %v", metricName, err)
 			return
 		}
 		value = counterVec
@@ -49,13 +47,11 @@ func (r *collector) IncrementCounter(metricName string, opts ...CounterOpts) {
 
 	counterVec, ok := value.(*prometheus.CounterVec)
 	if !ok {
-		slog.Warn("Invalid type for metric %s", metricName)
 		return
 	}
 
 	metric, err := counterVec.GetMetricWith(labels)
 	if err != nil {
-		slog.Warn("Failed to get metric %s with labels %v: %v", metricName, labels, err)
 		return
 	}
 
